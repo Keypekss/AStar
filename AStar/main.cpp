@@ -5,16 +5,21 @@
 
 #include <glm/glm.hpp>
 
+#include "ResourceManager.h"
+#include "SpriteRenderer.h"
+#include "Scene.h"
+
 // GLFW function declarations
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
 // screen dimensions
-const unsigned int SCREEN_WIDTH = 800, SCREEN_HEIGHT = 600;
+const unsigned int SCREEN_WIDTH = 800, SCREEN_HEIGHT = 800;
+
+Scene scene(SCREEN_WIDTH, SCREEN_HEIGHT, 40, 40);
 
 int main()
 {
-
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
@@ -39,12 +44,15 @@ int main()
 	// --------------------
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
+	// initialize scene
+	scene.Init();
+
 	// deltaTime variables
 	// -------------------
 	float deltaTime = 0.0f;
 	float lastFrame = 0.0f;
 
-	while (!glfwWindowShouldClose(window)) {
+	while (!glfwWindowShouldClose(window)) {		
 
 		// calculate deltaTime
 		// -------------------
@@ -53,16 +61,21 @@ int main()
 		lastFrame = currentFrame;
 		glfwPollEvents();
 
-		// render
-		// ------
+		// manage user input
+		// -----------------
+		scene.ProcessInput(deltaTime);
+
 		//glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		//glClear(GL_COLOR_BUFFER_BIT);
 		const GLfloat color[] = { 1.0f, 1.0f, 0.0f, 1.0f };
 		glClearBufferfv(GL_COLOR, 0, color);
 
+		// render scene
+		// ------------
+		scene.DrawScene();
+
 		glfwSwapBuffers(window);
 	}
-
 }
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
