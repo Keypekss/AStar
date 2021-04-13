@@ -42,6 +42,9 @@
     <ClCompile Include="Scene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="AStarPathFinder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Library Include="Dependencies\GLFW\lib-vc2017\glfw3dll.lib" />
@@ -459,6 +462,8 @@
     </None>
     <None Include="Shaders\sprite.frag" />
     <None Include="Shaders\sprite.vert" />
+    <None Include="Shaders\picking.vert" />
+    <None Include="Shaders\picking.frag" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Dependencies\GLM\glm\CMakeLists.txt" />
@@ -1341,6 +1346,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Scene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AStarPathFinder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
