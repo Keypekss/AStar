@@ -46,8 +46,8 @@ void AStarPathFinder::PathFinder(std::vector<Node> Graph, std::unordered_map<Nod
 
 	frontier.put(start, 0);
 	
-	came_from[start] = start;
-	cost_so_far[start] = 0;
+	came_from.emplace(std::make_pair(start, start));
+	cost_so_far.emplace(std::make_pair(start, 0.0));
 
 	while (!frontier.empty()) {
 		Node current = frontier.get();
@@ -55,14 +55,15 @@ void AStarPathFinder::PathFinder(std::vector<Node> Graph, std::unordered_map<Nod
 			break;
 
 		for (Node next : AStarPathFinder::neighbor(Graph, current)) {
-			double new_cost = cost_so_far[current] + 1;
+			double new_cost = cost_so_far.at(current) + 1;
 			// if node is not visited or less expensive to visit again
-			if (cost_so_far.find(next) == cost_so_far.end()/* || new_cost < cost_so_far[next]*/) {
-				cost_so_far[next] = new_cost;
+			if (cost_so_far.find(next) == cost_so_far.end() || new_cost < cost_so_far.at(next)) {
+				cost_so_far.emplace(std::make_pair(next, new_cost));
 				double priority = new_cost + heuristic(next, goal);
 				frontier.put(next, priority);
-				came_from[next] = current;
+				came_from.emplace(std::make_pair(next, current));
 			}
+			//std::cout << "Next: " << next.ID << " Cost: " << new_cost << std::endl;
 		}
 	}
 }
@@ -70,7 +71,6 @@ void AStarPathFinder::PathFinder(std::vector<Node> Graph, std::unordered_map<Nod
 std::vector<Node> AStarPathFinder::Reconstruct_Path(const std::vector<Node> &Graph, std::unordered_map<Node,Node> &came_from)
 {
 	std::vector<Node> path;
-	std::pair<Node, Node> temp;
 
 	// find start node
 	auto it1 = std::find_if(Graph.begin(), Graph.end(), [](const Node &neighbor) { return neighbor.Type == START; });

@@ -123,10 +123,10 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 
 	if (action == GLFW_RELEASE) {
 		AStarPathFinder::PathFinder(scene.Nodes, scene.CameFrom, scene.CostSoFar);
-		//AStarPathFinder::Reconstruct_Path(scene.Nodes, scene.CameFrom);
+		std::vector<Node> path = AStarPathFinder::Reconstruct_Path(scene.Nodes, scene.CameFrom);
 
-		for (auto &pair : scene.CameFrom) {
-			std::cout << "First: " << pair.first.ID << " Second: " << pair.second.ID << std::endl;
+		for (auto &node : path) {
+			std::cout << node.ID << " ";
 		}
 	}
 }

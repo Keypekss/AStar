@@ -5,18 +5,18 @@
 static unsigned int count = 0;
 
 Node::Node() 
-	: Position(0.0f, 0.0f), Size(1.0f, 1.0f), Color(1.0f), Rotation(0.0f), Type(NORMAL), ID(0), IsVisited(false), Sprite()
+	: Position(0.0f, 0.0f), Size(1.0f, 1.0f), Color(1.0f), Rotation(0.0f), Type(NORMAL), ID(0), Sprite()
 {
 	ID = ++count;
 }
 
 Node::Node(glm::vec2 pos, glm::vec2 size, Texture sprite, glm::vec3 color)
-	: Position(pos), Size(size), Color(color), Rotation(0.0f), Type(NORMAL), ID(0), IsVisited(false), Sprite(sprite)
+	: Position(pos), Size(size), Color(color), Rotation(0.0f), Type(NORMAL), ID(0), Sprite(sprite)
 {
 	ID = ++count;
 	if (ID == 1)
 		Type = START;
-	if (ID == 10)
+	if (ID == 1600)
 		Type = GOAL;	
 }
 

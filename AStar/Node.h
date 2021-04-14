@@ -23,7 +23,6 @@ public:
 	NodeType Type;
 	float Rotation;
 	unsigned int ID;
-	bool IsVisited;
 
 	// render state
 	Texture Sprite;
@@ -50,9 +49,9 @@ private:
 template<> struct std::hash<Node> {
 	std::size_t operator()(const Node& node) const noexcept
 	{
-		size_t posX = std::hash<unsigned int>()(node.Position.x);
-		size_t posY = std::hash<unsigned int>()(node.Position.y) << 4;
-		return posX ^ posY;
-		//return std::hash<unsigned int>()(node.ID ^ (node.ID << 4));		
+		//size_t posX = std::hash<unsigned int>()(node.Position.x);
+		//size_t posY = std::hash<unsigned int>()(node.Position.y) << 4;
+		//return posX ^ posY;
+		return std::hash<unsigned int>()(node.ID ^ (node.ID << 4));		
 	}
 };
