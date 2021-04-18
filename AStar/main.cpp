@@ -54,10 +54,14 @@ int main()
 	// --------------------
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 	glEnable(GL_DEPTH_FUNC);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// initialize scene
 	scene.Init();
 	scene.InitNodes();
+	scene.RenderText(window);
+	
 
 	while (!glfwWindowShouldClose(window)) {	
 
@@ -82,6 +86,12 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		else if (action == GLFW_RELEASE)
 			keys[key] = false;
 	}
+
+	if (key == GLFW_KEY_SPACE && GLFW_PRESS) {
+		scene.State = SCENE;
+		scene.DrawScene(window);
+		glfwSwapBuffers(window);
+	}
 }
 
 // the scene is rendered again only after the type of a node has been changed
@@ -90,7 +100,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 	double xpos, ypos;
 	glfwGetCursorPos(window, &xpos, &ypos);
 
-	if (action == GLFW_RELEASE) {
+	if (action == GLFW_RELEASE && scene.State == SCENE) {
 		scene.DrawSceneSelectionMode(window, xpos, ypos);
 		scene.ProcessInput(button, action, keys);
 		scene.DrawScene(window);

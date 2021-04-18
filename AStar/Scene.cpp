@@ -1,6 +1,7 @@
 #include "Scene.h"
 #include "ResourceManager.h"
 #include "SpriteRenderer.h"
+#include "TextRenderer.h"
 #include "Node.h"
 
 #include <sstream>
@@ -9,9 +10,11 @@
 SpriteRenderer	*Renderer;
 SpriteRenderer	*SelectionRenderer;
 SpriteRenderer	*LineRenderer;
+TextRenderer	*Text;
+
 
 Scene::Scene(unsigned int width, unsigned int height, unsigned int nTilesRow, unsigned int nTilesColumn) 
-	: Width(width), Height(height), NTilesRow(nTilesRow), NTilesColumn(nTilesColumn), CameFrom(), CostSoFar()
+	: State(MENU), Width(width), Height(height), NTilesRow(nTilesRow), NTilesColumn(nTilesColumn), CameFrom(), CostSoFar()
 {
 }
 
@@ -20,6 +23,7 @@ Scene::~Scene()
 	delete Renderer;
 	delete SelectionRenderer;
 	delete LineRenderer;
+	delete Text;
 	Nodes.clear();
 }
 
@@ -54,6 +58,8 @@ void Scene::Init()
 	SelectionRenderer = new SpriteRenderer(picking);
 	Shader line = ResourceManager::GetShader("line");
 	LineRenderer = new SpriteRenderer(line);
+	Text = new TextRenderer(this->Width, this->Height);
+	Text->Load("Resources/fonts/OCRAEXT.TTF", 24);
 }
 
 void Scene::InitNodes()
@@ -107,7 +113,7 @@ void Scene::DrawScene(GLFWwindow* window)
 	}
 	
 	Node::ResetCount();
-	//glfwSwapBuffers(window);
+	//glfwSwapBuffers(window); dont uncomment this for drawline function to function
 }
 
 // draws node with unique color behind the scenes to set pickID, use glSwapBuffers to see what's being drawn
@@ -178,11 +184,19 @@ void Scene::DrawLine(std::vector<Node> &path, GLFWwindow* window)
 	glfwSwapBuffers(window);
 }
 
-void Scene::SetVisited()
+void Scene::RenderText(GLFWwindow* window)
 {
-	for (auto &it : CameFrom) {
-		Nodes.at(it.first.ID).SetVisited();
+	const GLfloat color[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	glClearBufferfv(GL_COLOR, 0, color);
+	if (this->State == MENU) {
+		Text->RenderText("CONTROLS:",									this->Width / 2 - 250, this->Height / 2.0f - 200.0f, 1.0f);
+		Text->RenderText("CTRL + LMB to change start point",			this->Width / 2 - 250, this->Height / 2.0f - 170.0f, 1.0f);
+		Text->RenderText("CTRL + RMB to change goal",					this->Width / 2 - 250, this->Height / 2.0f - 150.0f, 1.0f);
+		Text->RenderText("LMB to put blockage",							this->Width / 2 - 250, this->Height / 2.0f - 130.0f, 1.0f);
+		Text->RenderText("RMB to reset the node to default state",		this->Width / 2 - 250, this->Height / 2.0f - 110.0f, 1.0f);
+		Text->RenderText("ESC to exit",									this->Width / 2 - 250, this->Height / 2.0f - 90.0f, 1.0f);
 	}
+	glfwSwapBuffers(window);
 }
 
 void Scene::ResetLevel()

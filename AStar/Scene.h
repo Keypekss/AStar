@@ -8,12 +8,19 @@
 
 #include "Node.h"
 
+enum SceneState {
+	MENU,
+	SCENE
+};
+
 class Scene {
 public:
 	// application state
+	SceneState State;
 	unsigned int Width, Height;
 	unsigned int NTilesRow, NTilesColumn;
 	int pickedID;
+
 
 	// array of nodes to be drawn
 	std::vector<Node> Nodes;
@@ -38,7 +45,7 @@ public:
 	void DrawScene(GLFWwindow* window);
 	void DrawSceneSelectionMode(GLFWwindow* window, double xpos, double ypos);
 	void DrawLine(std::vector<Node> &path, GLFWwindow* window);
-	void SetVisited();	
+	void RenderText(GLFWwindow* window);
 
 	// reset
 	void ResetLevel();
