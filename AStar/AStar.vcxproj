@@ -282,6 +282,8 @@
     <None Include="Dependencies\GLM\glm\gtx\vector_angle.inl" />
     <None Include="Dependencies\GLM\glm\gtx\vector_query.inl" />
     <None Include="Dependencies\GLM\glm\gtx\wrap.inl" />
+    <None Include="Shaders\line.frag" />
+    <None Include="Shaders\line.vert" />
     <None Include="Shaders\picking.frag" />
     <None Include="Shaders\picking.vert" />
     <None Include="Shaders\sprite.frag" />

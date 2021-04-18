@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 
 #include <tuple>
+#include <vector>
 
 #include "Texture.h"
 #include "SpriteRenderer.h"
@@ -12,7 +13,8 @@ enum NodeType {
 	NORMAL,
 	BLOCK,
 	START,
-	GOAL
+	GOAL,
+	VISITED
 };
 
 class Node {
@@ -34,13 +36,22 @@ public:
 
 	// draw sprite
 	void DrawNode(SpriteRenderer& renderer);
+	
+	// reset count every time the scene is rendered again
 	static void ResetCount();
+
+	// setters
+	// -------
+	// set color of the node based on its type
+	static void SetColor(Node &node);
+	// set type of the object according to input we get
+	static bool SetType(Node &start, Node &goal, Node &node, int button, int action, const bool keys[]);
+	void SetVisited();
 
 	// overloaded operators
 	bool operator==(const Node& rhs) const;
 	bool operator!=(const Node& rhs) const;
 	bool operator<(const Node& rhs) const;
-// 	Node& operator=(Node& rhs);
 
 private:
 };
@@ -49,9 +60,6 @@ private:
 template<> struct std::hash<Node> {
 	std::size_t operator()(const Node& node) const noexcept
 	{
-		//size_t posX = std::hash<unsigned int>()(node.Position.x);
-		//size_t posY = std::hash<unsigned int>()(node.Position.y) << 4;
-		//return posX ^ posY;
 		return std::hash<unsigned int>()(node.ID ^ (node.ID << 4));		
 	}
 };

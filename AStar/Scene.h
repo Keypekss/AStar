@@ -33,11 +33,12 @@ public:
 	void InitNodes();
 
 	// application loop
-	void ProcessInput(float dt);
+	void ProcessInput(int button, int action, const bool keys[]);
 	void Update(float dt);
 	void DrawScene(GLFWwindow* window);
 	void DrawSceneSelectionMode(GLFWwindow* window, double xpos, double ypos);
-	
+	void DrawLine(std::vector<Node> &path, GLFWwindow* window);
+	void SetVisited();	
 
 	// reset
 	void ResetLevel();

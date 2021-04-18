@@ -37,6 +37,41 @@ void SpriteRenderer::DrawSprite(Texture & texture, glm::vec2 position, glm::vec2
 	glBindVertexArray(0);
 }
 
+void SpriteRenderer::DrawLine(glm::vec2 startPos, glm::vec2 endPos, unsigned int thickness, glm::vec3 color)
+{
+	this->shader.Use();
+
+	this->shader.SetVector3f("lineColor", color);
+
+	unsigned int VBO, VAO;
+	unsigned int offset = 10;
+	unsigned int vertices[] = {
+		startPos.x + offset, startPos.y + offset,
+		endPos.x + offset, endPos.y + offset
+	};
+
+// 	unsigned int vertices[] = {
+// 		0, 0,
+// 		10, 10
+// 	};
+
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2, GL_UNSIGNED_INT, GL_FALSE, 2 * sizeof(unsigned int), (void*)0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+// 	glBindVertexArray(VAO);
+ 	glLineWidth(thickness);
+	glDrawArrays(GL_LINES, 0, 2);
+	glBindVertexArray(0);
+}
+
 void SpriteRenderer::initRenderData()
 {
 	// configure VAO/VBO

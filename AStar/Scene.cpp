@@ -6,8 +6,9 @@
 #include <sstream>
 #include <algorithm>
 
-SpriteRenderer		*Renderer;
-SpriteRenderer		*SelectionRenderer;
+SpriteRenderer	*Renderer;
+SpriteRenderer	*SelectionRenderer;
+SpriteRenderer	*LineRenderer;
 
 Scene::Scene(unsigned int width, unsigned int height, unsigned int nTilesRow, unsigned int nTilesColumn) 
 	: Width(width), Height(height), NTilesRow(nTilesRow), NTilesColumn(nTilesColumn), CameFrom(), CostSoFar()
@@ -17,6 +18,9 @@ Scene::Scene(unsigned int width, unsigned int height, unsigned int nTilesRow, un
 Scene::~Scene()
 {
 	delete Renderer;
+	delete SelectionRenderer;
+	delete LineRenderer;
+	Nodes.clear();
 }
 
 void Scene::Init()
@@ -24,6 +28,7 @@ void Scene::Init()
 	// load shaders
 	ResourceManager::LoadShader("Shaders/sprite.vert", "Shaders/sprite.frag", "sprite");
 	ResourceManager::LoadShader("Shaders/picking.vert", "Shaders/picking.frag", "picking");
+	ResourceManager::LoadShader("Shaders/line.vert", "Shaders/line.frag", "line");
 
 	// configure shaders
 	glm::mat4 projection = glm::ortho(
@@ -37,6 +42,7 @@ void Scene::Init()
 	ResourceManager::GetShader("sprite").Use().SetInteger("image", 0);
 	ResourceManager::GetShader("sprite").SetMatrix4("projection", projection);
 	ResourceManager::GetShader("picking").Use().SetMatrix4("projection", projection);
+	ResourceManager::GetShader("line").Use().SetMatrix4("projection", projection);
 
 	// load textures
 	ResourceManager::LoadTexture("Resources/block.png", false, "block");
@@ -46,6 +52,8 @@ void Scene::Init()
 	Renderer = new SpriteRenderer(sprite);
 	Shader picking = ResourceManager::GetShader("picking");
 	SelectionRenderer = new SpriteRenderer(picking);
+	Shader line = ResourceManager::GetShader("line");
+	LineRenderer = new SpriteRenderer(line);
 }
 
 void Scene::InitNodes()
@@ -59,15 +67,30 @@ void Scene::InitNodes()
 			glm::vec2 pos(unit_width * x, unit_height * y);
 			glm::vec2 size(unit_width, unit_height);
 			Node node(pos, size, ResourceManager::GetTexture("block"), glm::vec3(0.7, 0.85, 1.0));
+			Node::SetColor(node);
 			this->Nodes.push_back(node);
 		}
 	}
 }
 
-void Scene::ProcessInput(float dt)
+void Scene::ProcessInput(int button, int action, const bool keys[])
 {
-	//auto it = std::find_if(Nodes.begin(), Nodes.end(), [](const Node &node) { return node.ID == pickedID; });	
-
+	auto startNode = std::find_if(Nodes.begin(), Nodes.end(), [](const Node &node) { return node.Type == START; });
+	auto goalNode = std::find_if(Nodes.begin(), Nodes.end(), [](const Node &node) { return node.Type == GOAL; });
+	bool b = Node::SetType(*startNode, *goalNode, Nodes.at(pickedID - 1), button, action, keys);
+	if (b) {
+		// reset previous visited nodes back to normal state before finding new nodes
+		for (auto it = Nodes.begin(); it != Nodes.end();) {
+			it = std::find_if(Nodes.begin(), Nodes.end(), [](const Node &node) { return node.Type == VISITED; });
+			if (it == Nodes.end())
+				break;
+			it->Type = NORMAL;
+			Node::SetColor(*it);
+		}
+		// clear unordered maps if any node type has changed to start over
+		CameFrom.clear();
+		CostSoFar.clear();
+	}
 }
 
 void Scene::Update(float dt)
@@ -76,19 +99,18 @@ void Scene::Update(float dt)
 
 void Scene::DrawScene(GLFWwindow* window)
 {
-	//glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	//glClear(GL_COLOR_BUFFER_BIT);
 	const GLfloat color[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	glClearBufferfv(GL_COLOR, 0, color);		
+	glClearBufferfv(GL_COLOR, 0, color);
 			
 	for (unsigned int i = 0; i < Nodes.size(); i++) {
 		Nodes.at(i).DrawNode(*Renderer);
 	}
 	
 	Node::ResetCount();
-	glfwSwapBuffers(window);
+	//glfwSwapBuffers(window);
 }
 
+// draws node with unique color behind the scenes to set pickID, use glSwapBuffers to see what's being drawn
 void Scene::DrawSceneSelectionMode(GLFWwindow* window, double xpos, double ypos)
 {
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -114,7 +136,7 @@ void Scene::DrawSceneSelectionMode(GLFWwindow* window, double xpos, double ypos)
 			glm::vec2 pos(unit_width * x, unit_height * y);
 			glm::vec2 size(unit_width, unit_height);
 			Node node(pos, size, ResourceManager::GetTexture("block"), glm::vec3(1.0, 1.0, 1.0));
-			node.DrawNode(*SelectionRenderer);
+			node.DrawNode(*SelectionRenderer);			
 		}
 	}
 	glFlush();
@@ -146,6 +168,21 @@ void Scene::DrawSceneSelectionMode(GLFWwindow* window, double xpos, double ypos)
 	//std::cout << message << std::endl;
 	Node::ResetCount();
 	//glfwSwapBuffers(window);
+}
+
+void Scene::DrawLine(std::vector<Node> &path, GLFWwindow* window)
+{
+	for (unsigned int i = 1; i < path.size(); i++) {
+		LineRenderer->DrawLine(path.at(i - 1).Position, path.at(i).Position, 3, glm::vec3(1.0f, 1.0f, 0.0f));
+	}	
+	glfwSwapBuffers(window);
+}
+
+void Scene::SetVisited()
+{
+	for (auto &it : CameFrom) {
+		Nodes.at(it.first.ID).SetVisited();
+	}
 }
 
 void Scene::ResetLevel()

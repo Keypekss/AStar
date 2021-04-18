@@ -18,6 +18,9 @@ public:
 	// renders a defined quad textured given sprite
 	void DrawSprite(Texture &texture, glm::vec2 position, glm::vec2 size = glm::vec2(10.0f, 10.0f), float rotate = 0.0f, glm::vec3 color = glm::vec3(1.0f));
 
+	// draws a single line from one node to another neighboring node
+	void DrawLine(glm::vec2 startPos, glm::vec2 endPos, unsigned int thickness, glm::vec3 color);
+
 private:
 	// Render state
 	Shader shader;

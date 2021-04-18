@@ -1,9 +1,12 @@
 #include <iostream>
+#include <algorithm>
+#include <vector>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 #include <glm/glm.hpp>
+
 
 #include "ResourceManager.h"
 #include "SpriteRenderer.h"
@@ -14,13 +17,13 @@
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
-static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
 
 // screen dimensions
 const unsigned int SCREEN_WIDTH = 800, SCREEN_HEIGHT = 800;
 
 // store keys pressed to send them to mouse_button_callback
 bool keys[512];
+
 
 Scene scene(SCREEN_WIDTH, SCREEN_HEIGHT, 40, 40);
 
@@ -45,7 +48,6 @@ int main()
 
 	glfwSetKeyCallback(window, key_callback);
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
-	glfwSetCursorPosCallback(window, cursor_position_callback);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
 	// opengl configuration
@@ -56,41 +58,18 @@ int main()
 	// initialize scene
 	scene.Init();
 	scene.InitNodes();
-	scene.DrawScene(window);
 
-	// deltaTime variables
-	// -------------------
-	double deltaTime = 0.0f;
-	double lastFrame = 0.0f;
+	while (!glfwWindowShouldClose(window)) {	
 
-// 	for (int i = 0; i < 5; i++) {
-// 		std::cout << scene.Nodes.at(i).Position.x << " " << scene.Nodes.at(i).Position.y << std::endl;
-// 	}
-
-	while (!glfwWindowShouldClose(window)) {		
-
-		// calculate deltaTime
-		// -------------------
-		double currentFrame = glfwGetTime();
-		deltaTime = currentFrame - lastFrame;
-		lastFrame = currentFrame;
 		glfwPollEvents();
 
-		// manage user input
-		// -----------------
-		scene.ProcessInput(deltaTime);
-
-		// render scene
-		// ------------
-		
-
-
-		// render scene in selection mode
-		
-		
+		/*
+		* scene this rendered after every mouse input
+		*/
 	}
 }
 
+// stores the buttons pressed in an array
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
 	// when a user presses the escape key, we set the WindowShouldClose property to true closing the application
@@ -103,37 +82,23 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		else if (action == GLFW_RELEASE)
 			keys[key] = false;
 	}
-
 }
 
+// the scene is rendered again only after the type of a node has been changed
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
 	double xpos, ypos;
 	glfwGetCursorPos(window, &xpos, &ypos);
-	scene.DrawSceneSelectionMode(window, xpos, ypos);	
-
-	if (keys[GLFW_KEY_LEFT_CONTROL] == true && button == GLFW_MOUSE_BUTTON_LEFT)
-		scene.Nodes.at(scene.pickedID).Type = START;
-	else if (keys[GLFW_KEY_LEFT_CONTROL] == true && button == GLFW_MOUSE_BUTTON_RIGHT)
-		scene.Nodes.at(scene.pickedID).Type = GOAL;
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
-		scene.Nodes.at(scene.pickedID).Type = BLOCK;
-	else if (button == GLFW_MOUSE_BUTTON_RIGHT)
-		scene.Nodes.at(scene.pickedID).Type = NORMAL;
 
 	if (action == GLFW_RELEASE) {
+		scene.DrawSceneSelectionMode(window, xpos, ypos);
+		scene.ProcessInput(button, action, keys);
+		scene.DrawScene(window);
 		AStarPathFinder::PathFinder(scene.Nodes, scene.CameFrom, scene.CostSoFar);
+		scene.DrawScene(window); // need to run this again for visited nodes to be rendered correctly
 		std::vector<Node> path = AStarPathFinder::Reconstruct_Path(scene.Nodes, scene.CameFrom);
-
-		for (auto &node : path) {
-			std::cout << node.ID << " ";
-		}
-	}
-}
-
-static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
-{
-	
+		scene.DrawLine(path, window);
+	}	
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)

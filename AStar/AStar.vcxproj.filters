@@ -464,6 +464,8 @@
     <None Include="Shaders\sprite.vert" />
     <None Include="Shaders\picking.vert" />
     <None Include="Shaders\picking.frag" />
+    <None Include="Shaders\line.vert" />
+    <None Include="Shaders\line.frag" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Dependencies\GLM\glm\CMakeLists.txt" />
