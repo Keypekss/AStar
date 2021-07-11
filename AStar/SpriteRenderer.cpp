@@ -50,11 +50,6 @@ void SpriteRenderer::DrawLine(glm::vec2 startPos, glm::vec2 endPos, unsigned int
 		endPos.x + offset, endPos.y + offset
 	};
 
-// 	unsigned int vertices[] = {
-// 		0, 0,
-// 		10, 10
-// 	};
-
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
 
@@ -66,10 +61,12 @@ void SpriteRenderer::DrawLine(glm::vec2 startPos, glm::vec2 endPos, unsigned int
 	glVertexAttribPointer(0, 2, GL_UNSIGNED_INT, GL_FALSE, 2 * sizeof(unsigned int), (void*)0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-// 	glBindVertexArray(VAO);
  	glLineWidth(thickness);
 	glDrawArrays(GL_LINES, 0, 2);
 	glBindVertexArray(0);
+
+	glDeleteVertexArrays(1, &VAO);
+	glDeleteBuffers(1, &VBO);
 }
 
 void SpriteRenderer::initRenderData()

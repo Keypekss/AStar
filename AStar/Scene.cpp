@@ -195,6 +195,7 @@ void Scene::RenderText(GLFWwindow* window)
 		Text->RenderText("LMB to put blockage",							this->Width / 2 - 250, this->Height / 2.0f - 130.0f, 1.0f);
 		Text->RenderText("RMB to reset the node to default state",		this->Width / 2 - 250, this->Height / 2.0f - 110.0f, 1.0f);
 		Text->RenderText("ESC to exit",									this->Width / 2 - 250, this->Height / 2.0f - 90.0f, 1.0f);
+		Text->RenderText("Space to start",								this->Width / 2 - 250, this->Height / 2.0f - 70.0f, 1.0f);
 	}
 	glfwSwapBuffers(window);
 }
